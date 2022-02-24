@@ -29,11 +29,11 @@
 	<div id="mainmenu">
 		<?php $this->widget('zii.widgets.CMenu',array(
 			'items'=>array(
-				array('label'=>'홈', 'url'=>array('/site/index')),
-				array('label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
-				array('label'=>'고객문의', 'url'=>array('/site/contact')),
-				array('label'=>'로그인', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
-				array('label'=>'로그아웃 ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
+				array('label'=>'서버', 'url'=>array('/site/server')),
+//				array('label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
+//				array('label'=>'고객문의', 'url'=>array('/site/contact')),
+//				array('label'=>'로그인', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
+//				array('label'=>'로그아웃 ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
 			),
 		)); ?>
 	</div><!-- mainmenu -->
@@ -48,7 +48,7 @@
 	<div class="clear"></div>
 
 	<div id="footer">
-		Copyright &copy; <?php echo date('Y'); ?> by My Company.<br/>
+		Copyright &copy; <?php echo date('Y'); ?> by DATACREDIT(SERVER24.KR).<br/>
 		All Rights Reserved.<br/>
 		<?php echo Yii::powered(); ?>
 	</div><!-- footer -->
