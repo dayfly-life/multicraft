@@ -10,6 +10,60 @@ $this->pageTitle=Yii::app()->name . ' - '.Yii::t('mc', 'Login');
 $this->breadcrumbs=array(
     Yii::t('mc', 'Login'),
 );
+
+/**
+ * passToken
+ *  0 - 로딩중
+ *  1 - 통과
+ * -1 - 토큰이 안들어왔음
+ * -2 - 이상한 토큰
+ * -3 - 사용한 토큰
+ * -4 - 토큰 만료
+ * -5 - 알수없는 오류
+ */
+$passToken = 0;
+
+$url = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+$components = parse_url($url);
+parse_str($components['query'], $params);
+
+if(isset($params['token'])) {
+    $mcAuth = Yii::app()->db->createCommand()
+        ->select('gma_mc_no, gma_enabled, gma_create_time')
+        ->from('game_mc_auth')
+        ->where('gma_token=:token', array(':token'=>$params['token']))
+        ->queryRow();
+
+    if(!empty($mcAuth)) {
+        if($mcAuth['gma_enabled'] == 1) {
+
+            $now = new DateTime();  // 현재일시
+            $before = new DateTime($mcAuth['gma_create_time']);
+            $diff = $now->getTimestamp() - $before->getTimestamp();
+            if($diff <= 600) {
+                //update
+                $user = Yii::app()->db->createCommand()
+                    ->select('gm_id, gm_password')
+                    ->from('game_mc')
+                    ->where('gm_no=:gmNo', array(':gmNo'=>$mcAuth['gma_mc_no']))
+                    ->queryRow();
+                if(!empty($user)) {
+                    $passToken = 1;
+//                    CHtml::hiddenField('LoginForm[name]', $user['gm_id']);
+//                    CHtml::hiddenField('LoginForm[password]', $user['gm_password']);
+//                    CHtml::submitButton(Yii::t('mc', 'Login'));
+
+                }else $passToken = -5;
+            }else $passToken = -4;
+        } else $passToken = -3;
+    }else $passToken = -2;
+}else $passToken = -1;
+//$6$rounds=50000$1DbyvtrcMdHzSY7S$eN4.Xp/wpLiVT.Mq26BznEiP3MdDb9VoTKrzdsBWwl/FmpHOaPdK8RTjxINnx.6xvHFadF.jy5ZTP.8r4/i8N/
+$pass = crypt('test', 'sha512_crypt');
+
+
+var_dump($pass);
+
 ?>
 
 <?php if (!Yii::app()->params['register_disabled']): ?>
@@ -73,9 +127,53 @@ $this->breadcrumbs=array(
     </div>
     </div>
 
+    <?php echo $form->error($model,'ignoreIp'); ?>
+    <?php
+        switch ($passToken) {
+            case 0:
+                echo '로딩 중';
+                break;
+            case 1:
+                echo '로그인 가능';
+                break;
+            case -1:
+                echo '토큰이 안들어옴';
+                break;
+            case -2:
+                echo '이상한 토큰';
+                break;
+            case -3:
+                echo '사용한 토큰';
+                break;
+            case -4:
+                echo '토큰 만료 - 10분';
+                break;
+            case -5:
+                echo '알수없는 오류 - api error';
+                break;
+        }
+    ?>
+    <?php
+                        CHtml::hiddenField('LoginForm[name]', 'admin');
+                        CHtml::hiddenField('LoginForm[password]', 'admin');
+    ?>
     <?php echo CHtml::submitButton(Yii::t('mc', 'Login')); ?>
 
-<?php $this->endWidget(); ?>
+<!--    --><?php
+//    $model['name'] = 'admin'
+//    ?>
+<!--    --><?php //$model['password'] = 'admin' ?>
+<!--    --><?php //echo CHtml::hiddenField('LoginForm[name]', 'test') ?>
+<!--    --><?php //echo CHtml::hiddenField('LoginForm[password]', '1234') ?>
+<!--    --><?php //echo CHtml::submitButton(Yii::t('mc', 'Login')); ?>
+
+<!--    --><?php //var_dump(parse_str(parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])['query'], $result)); ?>
+<!--    $url = "https://testurl.com/test/1234?email=abc@test.com&name=sarah";-->
+<!--    $components = parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])['query'];-->
+<!--    parse_str($components['query'], $results);-->
+<!--    print_r($results);-->
+
+    <?php $this->endWidget(); ?>
 </div><!-- form -->
 
 <?php else: ?>
